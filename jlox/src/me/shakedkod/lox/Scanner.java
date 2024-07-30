@@ -77,6 +77,7 @@ public class Scanner
                 break;
             case '=':
                 addToken(match('=') ? EQUAL_EQUAL : EQUAL);
+                break;
             case '<':
                 addToken(match('=') ? LESS_EQUAL : LESS);
                 break;
@@ -89,6 +90,8 @@ public class Scanner
                 if (match('/'))
                     // a comment is from a starting point(//) to the end of the line
                     while (peek() != '\n' && !isAtEnd()) advance();
+                else if (match('*'))
+                    multiLineComments();
                 else
                     addToken(SLASH);
                 break;
@@ -171,6 +174,26 @@ public class Scanner
         addToken(STRING, value);
     }
 
+    private void multiLineComments()
+    {
+        while (!peek2Next().equals("*/") && !isAtEnd())
+        {
+            if (peek() == '\n') _line++;
+            advance();
+        }
+
+        if (isAtEnd())
+        {
+            Lox.error(_line, "Unterminated multi-line comment.");
+            return;
+        }
+
+        // advance over the * and the /
+        advance();
+        advance();
+        advance();
+    }
+
     private void number()
     {
         while (isDigit(peek())) advance();
@@ -224,6 +247,12 @@ public class Scanner
     {
         if (_current + 1 >= _source.length()) return '\0';
         return _source.charAt(_current + 1);
+    }
+
+    private String peek2Next()
+    {
+        if (_current + 2 >= _source.length()) return "\0";
+        return "" + _source.charAt(_current + 1) + _source.charAt(_current + 2);
     }
 
     // -------------------------------- //

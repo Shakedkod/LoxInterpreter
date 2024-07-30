@@ -1,0 +1,12 @@
+if (hello == 5)
+{
+	return 5;
+}
+
+/* somthing
+that is
+is the somthing /
+* this
+*/
+
+fun name(path) {}
