@@ -141,6 +141,11 @@ public class Scanner
         return isAlpha(c) || isDigit(c);
     }
 
+    private boolean isAtEnd()
+    {
+        return _current >= _source.length();
+    }
+
     // ------------------------------------- //
     //          token specific func          //
     // ------------------------------------- //
@@ -267,10 +272,5 @@ public class Scanner
     {
         String text = _source.substring(_start, _current);
         _tokens.add(new Token(type, text, literal, _line));
-    }
-
-    private boolean isAtEnd()
-    {
-        return _current >= _source.length();
     }
 }
