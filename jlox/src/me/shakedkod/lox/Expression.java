@@ -4,6 +4,16 @@ import java.util.List;
 
 abstract class Expression
 {
+	interface Visitor<R>
+	{
+		R visitBinaryExpression(Binary expression);
+		R visitGroupingExpression(Grouping expression);
+		R visitLiteralExpression(Literal expression);
+		R visitUnaryExpression(Unary expression);
+	}
+
+	abstract <R> R accept(Visitor<R> visitor);
+
 	static class Binary extends Expression
 	{
 		private final Expression _left;
@@ -15,6 +25,12 @@ abstract class Expression
 			_left = left;
 			_operator = operator;
 			_right = right;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitBinaryExpression(this);
 		}
 
 		public Expression getLeft() { return _left; }
@@ -31,6 +47,12 @@ abstract class Expression
 			_expression = expression;
 		}
 
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitGroupingExpression(this);
+		}
+
 		public Expression getExpression() { return _expression; }
 	}
 
@@ -41,6 +63,12 @@ abstract class Expression
 		public Literal(Object value)
 		{
 			_value = value;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitLiteralExpression(this);
 		}
 
 		public Object getValue() { return _value; }
@@ -55,6 +83,12 @@ abstract class Expression
 		{
 			_operator = operator;
 			_right = right;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitUnaryExpression(this);
 		}
 
 		public Token getOperator() { return _operator; }
