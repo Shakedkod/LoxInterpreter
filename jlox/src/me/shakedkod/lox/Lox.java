@@ -12,7 +12,8 @@ public class Lox
 {
     static boolean _hadError = false;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
             System.exit(64);
@@ -22,13 +23,15 @@ public class Lox
             runPrompt();
     }
 
-    public static void runFile(String path) throws IOException {
+    public static void runFile(String path) throws IOException
+    {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
         if (_hadError) System.exit(65);
     }
 
-    public static void runPrompt() throws IOException {
+    public static void runPrompt() throws IOException
+    {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
