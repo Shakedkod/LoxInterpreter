@@ -21,7 +21,8 @@ public class GenerateAST
                 "Binary   : Expression left, Token operator, Expression right",
                 "Grouping : Expression expression",
                 "Literal  : Object value",
-                "Unary    : Token operator, Expression right"
+                "Unary    : Token operator, Expression right",
+                "Ternary  : Expression condition, Expression ifTrue, Expression ifFalse"
         ));
     }
 

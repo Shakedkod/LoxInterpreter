@@ -39,6 +39,17 @@ public class ASTPrinter implements Expression.Visitor<String>
         );
     }
 
+    @Override
+    public String visitTernaryExpression(Expression.Ternary expression)
+    {
+        return parenthesize(
+                "?:",
+                expression.getCondition(),
+                expression.getIfTrue(),
+                expression.getIfFalse()
+        );
+    }
+
     private String parenthesize(String name, Expression... expressions)
     {
         StringBuilder builder = new StringBuilder();

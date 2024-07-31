@@ -1,19 +1,31 @@
 package me.shakedkod.lox;
 
 import java.util.List;
+import java.util.Queue;
 
 import static me.shakedkod.lox.TokenType.*;
 
-public class Parser
-{
-    private static class ParseError extends RuntimeException {}
+public class Parser {
+    private static class ParseError extends RuntimeException {
+    }
 
     private final List<Token> _tokens;
     private int _current = 0;
 
-    public Parser(List<Token> tokens)
-    {
+    public Parser(List<Token> tokens) {
         _tokens = tokens;
+    }
+
+    public Expression prase()
+    {
+        try
+        {
+            return expression();
+        }
+        catch (ParseError error)
+        {
+            return null;
+        }
     }
 
     // ----------------------- //
@@ -21,7 +33,36 @@ public class Parser
     // ----------------------- //
     private Expression expression()
     {
-        return equality();
+        return ternary();
+    }
+
+    private Expression ternary()
+    {
+        Expression expression = equality();
+
+        if (match(QUESTION_MARK))
+        {
+            if (!isComparison(expression))
+                throw error(
+                        previous(),
+                        "There must be a boolean result at the left side of the ternary expression."
+                );
+
+            Expression ifTrue = expression();
+
+            if (match(COLON))
+            {
+                Expression ifFalse = expression();
+                expression = new Expression.Ternary(expression, ifTrue, ifFalse);
+            }
+            else
+                throw error(
+                        peek(),
+                        "Ternary expressions require and else block that start after a ':'."
+                );
+        }
+
+        return expression;
     }
 
     private Expression equality()
@@ -108,8 +149,7 @@ public class Parser
             return new Expression.Grouping(expression);
         }
 
-        // TODO: ERROR HANDLING
-        return null;
+        throw error(peek(), "Expect expression.");
     }
 
     // ----------------------------------------- //
@@ -196,5 +236,23 @@ public class Parser
 
             advance();
         }
+    }
+
+    // ------------------------------- //
+    //          type checking          //
+    // ------------------------------- //
+    private boolean isComparison(Expression expression)
+    {
+        if (expression instanceof Expression.Binary)
+        {
+            TokenType type = ((Expression.Binary) expression).getOperator().getType();
+            return (type == EQUAL_EQUAL)
+                    || (type == BANG_EQUAL)
+                    || (type == GREATER)
+                    || (type == GREATER_EQUAL)
+                    || (type == LESS)
+                    || (type == LESS_EQUAL);
+        }
+        return false;
     }
 }

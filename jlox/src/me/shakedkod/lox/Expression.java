@@ -10,6 +10,7 @@ abstract class Expression
 		R visitGroupingExpression(Grouping expression);
 		R visitLiteralExpression(Literal expression);
 		R visitUnaryExpression(Unary expression);
+		R visitTernaryExpression(Ternary expression);
 	}
 
 	abstract <R> R accept(Visitor<R> visitor);
@@ -93,6 +94,30 @@ abstract class Expression
 
 		public Token getOperator() { return _operator; }
 		public Expression getRight() { return _right; }
+	}
+
+	static class Ternary extends Expression
+	{
+		private final Expression _condition;
+		private final Expression _ifTrue;
+		private final Expression _ifFalse;
+
+		public Ternary(Expression condition, Expression ifTrue, Expression ifFalse)
+		{
+			_condition = condition;
+			_ifTrue = ifTrue;
+			_ifFalse = ifFalse;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitTernaryExpression(this);
+		}
+
+		public Expression getCondition() { return _condition; }
+		public Expression getIfTrue() { return _ifTrue; }
+		public Expression getIfFalse() { return _ifFalse; }
 	}
 
 }
