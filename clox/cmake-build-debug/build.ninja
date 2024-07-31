@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_clox: phony || CMakeFiles/clox.dir
 
 build CMakeFiles/clox.dir/main.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/main.c || cmake_object_order_depends_target_clox
   DEP_FILE = CMakeFiles\clox.dir\main.c.obj.d
-  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\clox.dir
   OBJECT_FILE_DIR = CMakeFiles\clox.dir
   TARGET_COMPILE_PDB = CMakeFiles\clox.dir\

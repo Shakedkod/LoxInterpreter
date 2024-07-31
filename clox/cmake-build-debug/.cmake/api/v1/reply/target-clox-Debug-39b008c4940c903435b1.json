@@ -38,7 +38,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -std=gnu11 -fdiagnostics-color=always"
+					"fragment" : "-g -std=gnu99 -fdiagnostics-color=always"
 				}
 			],
 			"language" : "C",
@@ -48,7 +48,7 @@
 				[
 					1
 				],
-				"standard" : "11"
+				"standard" : "99"
 			},
 			"sourceIndexes" : 
 			[

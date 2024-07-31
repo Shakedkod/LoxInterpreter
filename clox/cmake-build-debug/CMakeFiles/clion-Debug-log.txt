@@ -5,6 +5,6 @@
 -- Check for working C compiler: C:/Dev/sdks/mingw64/bin/gcc.exe - skipped
 -- Detecting C compile features
 -- Detecting C compile features - done
--- Configuring done (5.1s)
+-- Configuring done (3.1s)
 -- Generating done (0.0s)
 -- Build files have been written to: C:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/cmake-build-debug
