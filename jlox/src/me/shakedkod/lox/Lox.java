@@ -56,7 +56,7 @@ public class Lox
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expression expression = parser.prase();
+        List<Statement> statements = parser.parse();
 
         // For debugging -> print Tokens
         //for (Token token : tokens)
@@ -67,7 +67,7 @@ public class Lox
         //System.out.println(new ASTPrinter().print(expression));
 
         if (_hadError) return;
-        interpreter.interpret(expression);
+        interpreter.interpret(statements);
     }
 
     // ERROR HANDLING

@@ -24,6 +24,10 @@ public class GenerateAST
                 "Unary    : Token operator, Expression right",
                 "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse"
         ));
+        defineAST(outputDir, "Statement", Arrays.asList(
+                "Expr  : Expression expression",
+                "Print : Expression expression"
+        ));
     }
 
     private static void defineAST(String outputDir, String baseName, List<String> types) throws IOException

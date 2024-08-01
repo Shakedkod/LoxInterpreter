@@ -1,13 +1,15 @@
 package me.shakedkod.lox;
 
-public class Interpreter implements Expression.Visitor<Object>
+import java.util.List;
+
+public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void>
 {
-    public void  interpret(Expression expression)
+    public void interpret(List<Statement> statements)
     {
         try
         {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Statement statement : statements)
+                execute(statement);
         }
         catch (RuntimeError error)
         {
@@ -32,7 +34,23 @@ public class Interpreter implements Expression.Visitor<Object>
         return object.toString();
     }
 
-    // EVALUATING THE VALUE
+    // STATEMENTS
+    @Override
+    public Void visitExprStatement(Statement.Expr statement)
+    {
+        evaluate(statement.getExpression());
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStatement(Statement.Print statement)
+    {
+        Object value = evaluate(statement.getExpression());
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    // EXPRESSIONS
     @Override
     public Object visitLiteralExpression(Expression.Literal expression)
     {
@@ -131,6 +149,11 @@ public class Interpreter implements Expression.Visitor<Object>
     private Object evaluate(Expression expression)
     {
         return expression.accept(this);
+    }
+
+    private void execute(Statement statement)
+    {
+        statement.accept(this);
     }
 
     private boolean isTruthy(Object object)

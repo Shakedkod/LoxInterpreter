@@ -1,13 +1,13 @@
 package me.shakedkod.lox;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 import static me.shakedkod.lox.TokenType.*;
 
-public class Parser {
-    private static class ParseError extends RuntimeException {
-    }
+public class Parser
+{
+    private static class ParseError extends RuntimeException {}
 
     private final List<Token> _tokens;
     private int _current = 0;
@@ -16,16 +16,40 @@ public class Parser {
         _tokens = tokens;
     }
 
-    public Expression prase()
+    public List<Statement> parse()
     {
-        try
+        List<Statement> statements = new ArrayList<>();
+
+        while (!isAtEnd())
         {
-            return expression();
+            statements.add(statement());
         }
-        catch (ParseError error)
-        {
-            return null;
-        }
+
+        return statements;
+    }
+
+    // ---------------------------- //
+    //          Statements          //
+    // ---------------------------- //
+    private Statement statement()
+    {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Statement printStatement()
+    {
+        Expression value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Statement.Print(value);
+    }
+
+    private Statement expressionStatement()
+    {
+        Expression expression = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Statement.Expr(expression);
     }
 
     // ----------------------- //
@@ -244,6 +268,10 @@ public class Parser {
     // ------------------------------- //
     private boolean isComparison(Expression expression)
     {
+        if (expression instanceof Expression.Literal)
+            if (((Expression.Literal) expression).getValue() instanceof Boolean)
+                return true;
+
         if (expression instanceof Expression.Binary)
         {
             TokenType type = ((Expression.Binary) expression).getOperator().getType();
