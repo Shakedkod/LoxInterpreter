@@ -66,6 +66,7 @@ public class Lox
         //if (_hadError) return;
         //System.out.println(new ASTPrinter().print(expression));
 
+        if (_hadError) return;
         interpreter.interpret(expression);
     }
 

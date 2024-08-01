@@ -120,10 +120,6 @@ public class Interpreter implements Expression.Visitor<Object>
         Object truthy = evaluate(expression.getIfTrue());
         Object falsy = evaluate(expression.getIfFalse());
 
-        if (!(condition instanceof Boolean))
-            throw new RuntimeError(expression.getOperator(),
-                    "Ternary condition must be equal to a boolean value.");
-
         if ((boolean)condition)
             return truthy;
         return falsy;
