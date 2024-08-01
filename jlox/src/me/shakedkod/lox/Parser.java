@@ -269,8 +269,12 @@ public class Parser
     private boolean isComparison(Expression expression)
     {
         if (expression instanceof Expression.Literal)
-            if (((Expression.Literal) expression).getValue() instanceof Boolean)
+        {
+            Object value = ((Expression.Literal) expression).getValue();
+            if (value instanceof Boolean)
                 return true;
+        }
+
 
         if (expression instanceof Expression.Binary)
         {
