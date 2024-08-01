@@ -22,7 +22,7 @@ public class GenerateAST
                 "Grouping : Expression expression",
                 "Literal  : Object value",
                 "Unary    : Token operator, Expression right",
-                "Ternary  : Expression condition, Expression ifTrue, Expression ifFalse"
+                "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse"
         ));
     }
 

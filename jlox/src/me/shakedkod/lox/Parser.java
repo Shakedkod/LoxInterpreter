@@ -42,6 +42,7 @@ public class Parser {
 
         if (match(QUESTION_MARK))
         {
+            Token token = previous();
             if (!isComparison(expression))
                 throw error(
                         previous(),
@@ -53,7 +54,7 @@ public class Parser {
             if (match(COLON))
             {
                 Expression ifFalse = expression();
-                expression = new Expression.Ternary(expression, ifTrue, ifFalse);
+                expression = new Expression.Ternary(token, expression, ifTrue, ifFalse);
             }
             else
                 throw error(

@@ -98,12 +98,14 @@ abstract class Expression
 
 	static class Ternary extends Expression
 	{
+		private final Token _operator;
 		private final Expression _condition;
 		private final Expression _ifTrue;
 		private final Expression _ifFalse;
 
-		public Ternary(Expression condition, Expression ifTrue, Expression ifFalse)
+		public Ternary(Token operator, Expression condition, Expression ifTrue, Expression ifFalse)
 		{
+			_operator = operator;
 			_condition = condition;
 			_ifTrue = ifTrue;
 			_ifFalse = ifFalse;
@@ -115,6 +117,7 @@ abstract class Expression
 			return visitor.visitTernaryExpression(this);
 		}
 
+		public Token getOperator() { return _operator; }
 		public Expression getCondition() { return _condition; }
 		public Expression getIfTrue() { return _ifTrue; }
 		public Expression getIfFalse() { return _ifFalse; }
