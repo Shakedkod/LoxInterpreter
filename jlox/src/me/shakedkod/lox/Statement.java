@@ -40,12 +40,14 @@ abstract class Statement
 	static class Class extends Statement
 	{
 		private final Token _name;
+		private final Expression.Variable _superclass;
 		private final List<Statement.Function> _staticMethods;
 		private final List<Statement.Function> _methods;
 
-		public Class(Token name, List<Statement.Function> staticMethods, List<Statement.Function> methods)
+		public Class(Token name, Expression.Variable superclass, List<Statement.Function> staticMethods, List<Statement.Function> methods)
 		{
 			_name = name;
+			_superclass = superclass;
 			_staticMethods = staticMethods;
 			_methods = methods;
 		}
@@ -57,6 +59,7 @@ abstract class Statement
 		}
 
 		public Token getName() { return _name; }
+		public Expression.Variable getSuperclass() { return _superclass; }
 		public List<Statement.Function> getStaticMethods() { return _staticMethods; }
 		public List<Statement.Function> getMethods() { return _methods; }
 	}

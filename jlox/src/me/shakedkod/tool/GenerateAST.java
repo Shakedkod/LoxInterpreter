@@ -26,6 +26,7 @@ public class GenerateAST
                 "Literal  : Object value",
                 "Logical  : Expression left, Token operator, Expression right",
                 "Set      : Expression object, Token name, Expression value",
+                "Super    : Token keyword, Token method",
                 "This     : Token keyword",
                 "Unary    : Token operator, Expression right",
                 "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse",
@@ -33,7 +34,8 @@ public class GenerateAST
         ));
         defineAST(outputDir, "Statement", Arrays.asList(
                 "Block    : List<Statement> statements",
-                "Class    : Token name, List<Statement.Function> staticMethods, List<Statement.Function> methods",
+                "Class    : Token name, Expression.Variable superclass, List<Statement.Function> staticMethods, " +
+                          "List<Statement.Function> methods",
                 "Expr     : Expression expression",
                 "Function : Token name, List<Token> params, List<Statement> body",
                 "If       : Expression condition, Statement thenBranch, Statement elseBranch",

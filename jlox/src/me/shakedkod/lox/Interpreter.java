@@ -62,7 +62,22 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Void visitClassStatement(Statement.Class statement)
     {
+        Object superclass = null;
+        if (statement.getSuperclass() != null)
+        {
+            superclass = evaluate(statement.getSuperclass());
+            if (!(superclass instanceof LoxClass))
+                throw new RuntimeError(statement.getSuperclass().getName(),
+                        "Superclass must be a class.");
+        }
+
         environment.define(statement.getName().getLexeme(), null);
+
+        if (statement.getSuperclass() != null)
+        {
+            environment = new Environment(environment);
+            environment.define("super", superclass);
+        }
 
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Statement.Function method : statement.getMethods())
@@ -79,7 +94,10 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             staticMethods.put(method.getName().getLexeme(), function);
         }
 
-        LoxClass klass = new LoxClass(statement.getName().getLexeme(), staticMethods, methods);
+        LoxClass klass = new LoxClass(statement.getName().getLexeme(), (LoxClass)superclass, staticMethods, methods);
+
+        if (superclass != null) environment = environment.getEnclosing();
+
         environment.assign(statement.getName(), klass);
         return null;
     }
@@ -276,6 +294,28 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         Object value = evaluate(expression.getValue());
         ((LoxInstance)object).set(expression.getName(), value);
         return value;
+    }
+
+    @Override
+    public Object visitSuperExpression(Expression.Super expression)
+    {
+        int distance = locals.get(expression);
+        LoxClass superclass = (LoxClass)environment.getAt(distance, "super");
+        LoxInstance object = (LoxInstance)environment.getAt(distance - 1, "this");
+
+        LoxFunction method = superclass.findMethod(expression.getMethod().getLexeme());
+
+        if (method == null)
+        {
+            method = superclass.findStaticMethod(expression.getMethod().getLexeme());
+
+            if (method == null) throw new RuntimeError(
+                    expression.getMethod(),
+                    "Undefined property '" + expression.getMethod().getLexeme() + "'."
+            );
+        }
+
+        return method.bind(object);
     }
 
     @Override
