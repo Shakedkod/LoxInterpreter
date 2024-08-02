@@ -1,10 +1,32 @@
 package me.shakedkod.lox;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void>
 {
-    private Environment environment = new Environment();
+    final Environment globals = new Environment();
+    private Environment environment = globals;
+    private final Map<Expression, Integer> locals = new HashMap<>();
+
+    public Interpreter()
+    {
+        globals.define("clock", new LoxCallable() {
+            @Override
+            public int arity() { return 0; }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments)
+            {
+                return System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() { return "<native fn>"; }
+        });
+    }
 
     public void interpret(List<Statement> statements)
     {
@@ -36,7 +58,48 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return object.toString();
     }
 
+    // Functions & Classes & More
+    @Override
+    public Void visitClassStatement(Statement.Class statement)
+    {
+        environment.define(statement.getName().getLexeme(), null);
+
+        Map<String, LoxFunction> methods = new HashMap<>();
+        for (Statement.Function method : statement.getMethods())
+        {
+            LoxFunction function = new LoxFunction(method, environment,
+                    method.getName().getLexeme().equals("init"));
+            methods.put(method.getName().getLexeme(), function);
+        }
+
+        Map<String, LoxFunction> staticMethods = new HashMap<>();
+        for (Statement.Function method : statement.getStaticMethods())
+        {
+            LoxFunction function = new LoxFunction(method, environment, false);
+            staticMethods.put(method.getName().getLexeme(), function);
+        }
+
+        LoxClass klass = new LoxClass(statement.getName().getLexeme(), staticMethods, methods);
+        environment.assign(statement.getName(), klass);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionStatement(Statement.Function statement)
+    {
+        LoxFunction function = new LoxFunction(statement, environment, false);
+        environment.define(statement.getName().getLexeme(), function);
+        return null;
+    }
+
     // STATEMENTS
+    @Override
+    public Void visitBlockStatement(Statement.Block statement)
+    {
+        executeBlock(statement.getStatements(), new Environment(environment));
+        return null;
+    }
+
     @Override
     public Void visitExprStatement(Statement.Expr statement)
     {
@@ -55,6 +118,15 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Void visitReturnStatement(Statement.Return statement)
+    {
+        Object value = null;
+        if (statement.getValue() != null) value = evaluate(statement.getValue());
+
+        throw new Return(value);
+    }
+
+    @Override
     public Void visitVarStatement(Statement.Var statement)
     {
         Object value = null;
@@ -62,6 +134,25 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             value = evaluate(statement.getInitializer());
 
         environment.define(statement.getName().getLexeme(), value);
+        return null;
+    }
+
+    @Override
+    public Void visitIfStatement(Statement.If statement)
+    {
+        if (isTruthy(evaluate(statement.getCondition())))
+            execute(statement.getThenBranch());
+        else if (statement.getElseBranch() != null)
+            execute(statement.getElseBranch());
+
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStatement(Statement.While statement)
+    {
+        while (isTruthy(evaluate(statement.getCondition())))
+            execute(statement.getBody());
         return null;
     }
 
@@ -159,24 +250,92 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visitLogicalExpression(Expression.Logical expression)
+    {
+        Object left = evaluate(expression.getLeft());
+
+        if (expression.getOperator().getType() == TokenType.OR)
+        {
+            if (isTruthy(left)) return left;
+        }
+        else
+            if (!isTruthy(left)) return left;
+
+        return evaluate(expression.getRight());
+    }
+
+    @Override
+    public Object visitSetExpression(Expression.Set expression)
+    {
+        Object object = evaluate(expression.getObject());
+
+        if (!(object instanceof LoxInstance))
+            throw new RuntimeError(expression.getName(),
+                    "Only instances have fields.");
+
+        Object value = evaluate(expression.getValue());
+        ((LoxInstance)object).set(expression.getName(), value);
+        return value;
+    }
+
+    @Override
+    public Object visitThisExpression(Expression.This expression)
+    {
+        return lookUpVariable(expression.getKeyword(), expression);
+    }
+
+    @Override
     public Object visitVariableExpression(Expression.Variable expression)
     {
-        return environment.get(expression.getName());
+        return lookUpVariable(expression.getName(), expression);
     }
 
     @Override
     public Object visitAssignExpression(Expression.Assign expression)
     {
         Object value = evaluate(expression.getValue());
-        environment.assign(expression.getName(), value);
+        Integer distance = locals.get(expression);
+
+        if (distance != null)
+            environment.assignAt(distance, expression.getName(), value);
+        else
+            globals.assign(expression.getName(), value);
+
         return value;
     }
 
     @Override
-    public Void visitBlockStatement(Statement.Block statement)
+    public Object visitCallExpression(Expression.Call expression)
     {
-        executeBlock(statement.getStatements(), new Environment(environment));
-        return null;
+        Object callee = evaluate(expression.getCallee());
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expression argument : expression.getArguments())
+            arguments.add(evaluate(argument));
+
+        if (!(callee instanceof LoxCallable))
+            throw new RuntimeError(expression.getParen(),
+                    "Can only call functions and classes.");
+
+        LoxCallable function = (LoxCallable)callee;
+        if (arguments.size() != function.arity())
+            throw new RuntimeError(expression.getParen(),
+                "Expected " + function.arity() + " arguments but got " + arguments.size() + "."
+            );
+
+        return function.call(this, arguments);
+    }
+
+    @Override
+    public Object visitGetExpression(Expression.Get expression)
+    {
+        Object object = evaluate(expression.getObject());
+        if (object instanceof LoxInstance)
+            return ((LoxInstance)object).get(expression.getName());
+
+
+        throw new RuntimeError(expression.getName(),
+                "Only instances have properties.");
     }
 
     //----------------------//
@@ -192,7 +351,12 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         statement.accept(this);
     }
 
-    private void executeBlock(List<Statement> statements, Environment environment)
+    public void resolve(Expression expression, int depth)
+    {
+        locals.put(expression, depth);
+    }
+
+    public void executeBlock(List<Statement> statements, Environment environment)
     {
         Environment previous = this.environment;
         try
@@ -232,5 +396,15 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     {
         if (left instanceof Double && right instanceof Double) return;
         throw new RuntimeError(operator, "Operands must be numbers.");
+    }
+
+    private Object lookUpVariable(Token name, Expression expression)
+    {
+        Integer distance = locals.get(expression);
+
+        if (distance != null)
+            return environment.getAt(distance, name.getLexeme());
+        else
+            return globals.get(name);
     }
 }

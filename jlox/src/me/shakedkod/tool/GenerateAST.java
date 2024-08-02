@@ -20,17 +20,27 @@ public class GenerateAST
         defineAST(outputDir, "Expression", Arrays.asList(
                 "Assign   : Token name, Expression value",
                 "Binary   : Expression left, Token operator, Expression right",
+                "Call     : Expression callee, Token paren, List<Expression> arguments",
+                "Get      : Expression object, Token name",
                 "Grouping : Expression expression",
                 "Literal  : Object value",
+                "Logical  : Expression left, Token operator, Expression right",
+                "Set      : Expression object, Token name, Expression value",
+                "This     : Token keyword",
                 "Unary    : Token operator, Expression right",
                 "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse",
                 "Variable : Token name"
         ));
         defineAST(outputDir, "Statement", Arrays.asList(
-                "Block : List<Statement> statements",
-                "Expr  : Expression expression",
-                "Print : Expression expression",
-                "Var   : Token name, Expression initializer"
+                "Block    : List<Statement> statements",
+                "Class    : Token name, List<Statement.Function> staticMethods, List<Statement.Function> methods",
+                "Expr     : Expression expression",
+                "Function : Token name, List<Token> params, List<Statement> body",
+                "If       : Expression condition, Statement thenBranch, Statement elseBranch",
+                "Print    : Expression expression",
+                "Return   : Token keyword, Expression value",
+                "Var      : Token name, Expression initializer",
+                "While    : Expression condition, Statement body"
         ));
     }
 

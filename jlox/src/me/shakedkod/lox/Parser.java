@@ -1,6 +1,8 @@
 package me.shakedkod.lox;
 
+import javax.lang.model.type.ReferenceType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static me.shakedkod.lox.TokenType.*;
@@ -35,6 +37,8 @@ public class Parser
     {
         try
         {
+            if (match(CLASS)) return classDeclaration();
+            if (match(FUN)) return function("function");
             if (match(VAR)) return varDeclaration();
 
             return statement();
@@ -63,12 +67,60 @@ public class Parser
         return new Statement.Var(name, initializer);
     }
 
+    private Statement classDeclaration()
+    {
+        Token name = consume(IDENTIFIER, "Expect class name.");
+
+        consume(LEFT_BRACE, "Expect '{' before class body.");
+
+        List<Statement.Function> methods = new ArrayList<>();
+        List<Statement.Function> staticMethods = new ArrayList<>();
+        while (!check(RIGHT_BRACE) && !isAtEnd())
+        {
+            if (match(CLASS)) staticMethods.add(function("static"));
+            else methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+        return new Statement.Class(name, staticMethods, methods);
+    }
+
+    private Statement.Function function(String kind)
+    {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new ArrayList<>();
+
+        if (!check(RIGHT_PAREN))
+        {
+            do
+            {
+                if (parameters.size() >= 255)
+                    error(peek(), "Can't have more than 255 parameters.");
+                parameters.add(
+                        consume(IDENTIFIER, "Expect parameter name.")
+                );
+            }
+            while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Statement> body = block();
+        return new Statement.Function(name, parameters, body);
+    }
+
     // ---------------------------- //
     //          Statements          //
     // ---------------------------- //
     private Statement statement()
     {
+        if (match(FOR)) return forStatement();
+        if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
+        if (match(RETURN)) return returnStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Statement.Block(block());
 
         return expressionStatement();
@@ -83,6 +135,81 @@ public class Parser
 
         consume(RIGHT_BRACE, "Expect '}' after block.");
         return statements;
+    }
+
+    private Statement returnStatement()
+    {
+        Token keyword = previous();
+        Expression value = null;
+
+        if (!check(SEMICOLON))
+            value = expression();
+
+        consume(SEMICOLON, "Expect ';' after return value.");
+        return new Statement.Return(keyword, value);
+    }
+
+    private Statement forStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+        Statement initializer;
+        if (match(SEMICOLON))
+            initializer = null;
+        else if (match(VAR))
+            initializer = varDeclaration();
+        else
+            initializer = expressionStatement();
+
+        Expression condition = null;
+        if (!check(SEMICOLON))
+            condition = expression();
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expression increment = null;
+        if (!check(RIGHT_PAREN))
+            increment = expression();
+        consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        Statement body = statement();
+
+        if (increment != null)
+            body = new Statement.Block(Arrays.asList(
+                    body,
+                    new Statement.Expr(increment)
+            ));
+
+        if (condition == null) condition = new Expression.Literal(true);
+        body = new Statement.While(condition, body);
+
+        if (initializer != null)
+            body = new Statement.Block(Arrays.asList(initializer, body));
+
+        return body;
+    }
+
+    private Statement ifStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Statement thenBranch = statement();
+        Statement elseBranch = null;
+        if (match(ELSE))
+            elseBranch = statement();
+
+        return new Statement.If(condition, thenBranch, elseBranch);
+    }
+
+    private Statement whileStatement()
+    {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after condition.");
+        Statement body = statement();
+
+        return new Statement.While(condition, body);
     }
 
     private Statement printStatement()
@@ -109,7 +236,7 @@ public class Parser
 
     private Expression assignment()
     {
-        Expression expression = equality();
+        Expression expression = ternary();
 
         if (match(EQUAL))
         {
@@ -121,6 +248,11 @@ public class Parser
                 Token name = ((Expression.Variable)expression).getName();
                 return new Expression.Assign(name, value);
             }
+            else if (expression instanceof Expression.Get)
+            {
+                Expression.Get get = (Expression.Get)expression;
+                return new Expression.Set(get.getObject(), get.getName(), value);
+            }
 
             error(equals, "Invalid assignment target."); // [no-throw]
         }
@@ -130,7 +262,7 @@ public class Parser
 
     private Expression ternary()
     {
-        Expression expression = equality();
+        Expression expression = or();
 
         if (match(QUESTION_MARK))
         {
@@ -153,6 +285,34 @@ public class Parser
                         peek(),
                         "Ternary expressions require and else block that start after a ':'."
                 );
+        }
+
+        return expression;
+    }
+
+    private Expression or()
+    {
+        Expression expression = and();
+
+        while (match(OR))
+        {
+            Token operator = previous();
+            Expression right = and();
+            expression = new Expression.Logical(expression, operator, right);
+        }
+
+        return expression;
+    }
+
+    private Expression and()
+    {
+        Expression expression = equality();
+
+        while (match(AND))
+        {
+            Token operator = previous();
+            Expression right = equality();
+            expression = new Expression.Logical(expression, operator, right);
         }
 
         return expression;
@@ -223,7 +383,27 @@ public class Parser
             return new Expression.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    private Expression call()
+    {
+        Expression expression = primary();
+
+        while (true)
+        {
+            if (match(LEFT_PAREN))
+                expression = finishCall(expression);
+            else if (match(DOT))
+            {
+                Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+                expression = new Expression.Get(expression, name);
+            }
+            else
+                break;
+        }
+
+        return expression;
     }
 
     private Expression primary()
@@ -234,6 +414,8 @@ public class Parser
 
         if (match(NUMBER, STRING))
             return new Expression.Literal(previous().getLiteral());
+
+        if (match(THIS)) return new Expression.This(previous());
 
         if (match(IDENTIFIER))
             return new Expression.Variable(previous());
@@ -246,6 +428,28 @@ public class Parser
         }
 
         throw error(peek(), "Expect expression.");
+    }
+
+    // -------------------------------------------- //
+    //          unspecified helper methods          //
+    // -------------------------------------------- //
+    private Expression finishCall(Expression callee)
+    {
+        List<Expression> arguments = new ArrayList<>();
+
+        if (!check(RIGHT_PAREN))
+        {
+            do
+            {
+                if (arguments.size() >= 255)
+                    error(peek(), "Can't have more than 255 arguments.");
+                arguments.add(expression());
+            } while (match(COMMA));
+        }
+
+        Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+
+        return new Expression.Call(callee, paren, arguments);
     }
 
     // ----------------------------------------- //
