@@ -6,14 +6,37 @@ abstract class Expression
 {
 	interface Visitor<R>
 	{
+		R visitAssignExpression(Assign expression);
 		R visitBinaryExpression(Binary expression);
 		R visitGroupingExpression(Grouping expression);
 		R visitLiteralExpression(Literal expression);
 		R visitUnaryExpression(Unary expression);
 		R visitTernaryExpression(Ternary expression);
+		R visitVariableExpression(Variable expression);
 	}
 
 	abstract <R> R accept(Visitor<R> visitor);
+
+	static class Assign extends Expression
+	{
+		private final Token _name;
+		private final Expression _value;
+
+		public Assign(Token name, Expression value)
+		{
+			_name = name;
+			_value = value;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitAssignExpression(this);
+		}
+
+		public Token getName() { return _name; }
+		public Expression getValue() { return _value; }
+	}
 
 	static class Binary extends Expression
 	{
@@ -121,6 +144,24 @@ abstract class Expression
 		public Expression getCondition() { return _condition; }
 		public Expression getIfTrue() { return _ifTrue; }
 		public Expression getIfFalse() { return _ifFalse; }
+	}
+
+	static class Variable extends Expression
+	{
+		private final Token _name;
+
+		public Variable(Token name)
+		{
+			_name = name;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor)
+		{
+			return visitor.visitVariableExpression(this);
+		}
+
+		public Token getName() { return _name; }
 	}
 
 }

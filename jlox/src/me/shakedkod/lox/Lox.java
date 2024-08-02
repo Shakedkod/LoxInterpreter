@@ -11,6 +11,7 @@ import java.util.List;
 public class Lox
 {
     private static final Interpreter interpreter = new Interpreter();
+    static boolean _isREPL = false;
     static boolean _hadError = false;
     static boolean _hadRuntimeError = false;
 
@@ -36,6 +37,7 @@ public class Lox
 
     public static void runPrompt() throws IOException
     {
+        _isREPL = true;
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
@@ -61,10 +63,6 @@ public class Lox
         // For debugging -> print Tokens
         //for (Token token : tokens)
         //    System.out.println(token);
-
-        // For debugging -> print the AST
-        //if (_hadError) return;
-        //System.out.println(new ASTPrinter().print(expression));
 
         if (_hadError) return;
         interpreter.interpret(statements);

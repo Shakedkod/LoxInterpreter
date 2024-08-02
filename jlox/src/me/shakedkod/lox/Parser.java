@@ -22,10 +22,45 @@ public class Parser
 
         while (!isAtEnd())
         {
-            statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
+    }
+
+    // ------------------------------ //
+    //          Declarations          //
+    // ------------------------------ //
+    private Statement declaration()
+    {
+        try
+        {
+            if (match(VAR)) return varDeclaration();
+
+            return statement();
+        }
+        catch (ParseError error)
+        {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Statement varDeclaration()
+    {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expression initializer = null;
+        boolean isInit = false;
+        if (match(EQUAL))
+        {
+            initializer = expression();
+            isInit = true;
+        }
+
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Statement.Var(name, initializer);
     }
 
     // ---------------------------- //
@@ -34,8 +69,20 @@ public class Parser
     private Statement statement()
     {
         if (match(PRINT)) return printStatement();
+        if (match(LEFT_BRACE)) return new Statement.Block(block());
 
         return expressionStatement();
+    }
+
+    private List<Statement> block()
+    {
+        List<Statement> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd())
+            statements.add(declaration());
+
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     private Statement printStatement()
@@ -52,12 +99,33 @@ public class Parser
         return new Statement.Expr(expression);
     }
 
-    // ----------------------- //
-    //          Rules          //
-    // ----------------------- //
+    // ----------------------------- //
+    //          Expressions          //
+    // ----------------------------- //
     private Expression expression()
     {
-        return ternary();
+        return assignment();
+    }
+
+    private Expression assignment()
+    {
+        Expression expression = equality();
+
+        if (match(EQUAL))
+        {
+            Token equals = previous();
+            Expression value = assignment();
+
+            if (expression instanceof Expression.Variable)
+            {
+                Token name = ((Expression.Variable)expression).getName();
+                return new Expression.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target."); // [no-throw]
+        }
+
+        return expression;
     }
 
     private Expression ternary()
@@ -166,6 +234,9 @@ public class Parser
 
         if (match(NUMBER, STRING))
             return new Expression.Literal(previous().getLiteral());
+
+        if (match(IDENTIFIER))
+            return new Expression.Variable(previous());
 
         if (match(LEFT_PAREN))
         {

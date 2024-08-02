@@ -4,6 +4,8 @@ import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void>
 {
+    private Environment environment = new Environment();
+
     public void interpret(List<Statement> statements)
     {
         try
@@ -38,6 +40,8 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Void visitExprStatement(Statement.Expr statement)
     {
+        if (Lox._isREPL) return visitPrintStatement(new Statement.Print(statement.getExpression()));
+
         evaluate(statement.getExpression());
         return null;
     }
@@ -47,6 +51,17 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     {
         Object value = evaluate(statement.getExpression());
         System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStatement(Statement.Var statement)
+    {
+        Object value = null;
+        if (statement.getInitializer() != null)
+            value = evaluate(statement.getInitializer());
+
+        environment.define(statement.getName().getLexeme(), value);
         return null;
     }
 
@@ -143,6 +158,27 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return falsy;
     }
 
+    @Override
+    public Object visitVariableExpression(Expression.Variable expression)
+    {
+        return environment.get(expression.getName());
+    }
+
+    @Override
+    public Object visitAssignExpression(Expression.Assign expression)
+    {
+        Object value = evaluate(expression.getValue());
+        environment.assign(expression.getName(), value);
+        return value;
+    }
+
+    @Override
+    public Void visitBlockStatement(Statement.Block statement)
+    {
+        executeBlock(statement.getStatements(), new Environment(environment));
+        return null;
+    }
+
     //----------------------//
     //    helper methods    //
     //----------------------//
@@ -154,6 +190,21 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     private void execute(Statement statement)
     {
         statement.accept(this);
+    }
+
+    private void executeBlock(List<Statement> statements, Environment environment)
+    {
+        Environment previous = this.environment;
+        try
+        {
+            this.environment = environment;
+
+            for (Statement statement : statements)
+                execute(statement);
+        }
+        finally {
+            this.environment = previous;
+        }
     }
 
     private boolean isTruthy(Object object)

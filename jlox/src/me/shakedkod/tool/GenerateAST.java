@@ -18,15 +18,19 @@ public class GenerateAST
 
         String  outputDir = args[0];
         defineAST(outputDir, "Expression", Arrays.asList(
+                "Assign   : Token name, Expression value",
                 "Binary   : Expression left, Token operator, Expression right",
                 "Grouping : Expression expression",
                 "Literal  : Object value",
                 "Unary    : Token operator, Expression right",
-                "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse"
+                "Ternary  : Token operator, Expression condition, Expression ifTrue, Expression ifFalse",
+                "Variable : Token name"
         ));
         defineAST(outputDir, "Statement", Arrays.asList(
+                "Block : List<Statement> statements",
                 "Expr  : Expression expression",
-                "Print : Expression expression"
+                "Print : Expression expression",
+                "Var   : Token name, Expression initializer"
         ));
     }
 
@@ -72,12 +76,49 @@ public class GenerateAST
         {
             String type = field.split(" ")[0];
             String name = field.split(" ")[1];
-            writer.println("\t\tprivate final " + type + " _" + name + ";");
+
+            if (type.startsWith("!"))
+            {
+                type = type.substring(1);
+                writer.println("\t\tprivate " + type + " _" + name + " = false;");
+            }
+            else
+                writer.println("\t\tprivate final " + type + " _" + name + ";");
         }
 
         // constructor
         writer.println();
-        writer.println("\t\tpublic " + className + "(" + fieldList + ")");
+
+        boolean isNotFinal = false;
+        for (String field : fields)
+        {
+            String type = field.split(" ")[0];
+            if (type.startsWith("!"))
+            {
+                isNotFinal = true;
+                break;
+            }
+        }
+
+        if (!isNotFinal)
+            writer.println("\t\tpublic " + className + "(" + fieldList + ")");
+        else
+        {
+            writer.print("\t\tpublic " + className + "(");
+            for (int i = 0; i < fields.length; i++)
+            {
+                String field = fields[i];
+                if (field.startsWith("!"))
+                    field = field.substring(1);
+                String type = field.split(" ")[0];
+                String name = field.split(" ")[1];
+                if (i == fields.length - 1)
+                    writer.print(type + " " + name + ")");
+                else
+                    writer.print(type + " " + name + ", ");
+            }
+            writer.println();
+        }
         writer.println("\t\t{");
 
         // store the parameters in fields
@@ -104,7 +145,15 @@ public class GenerateAST
             String type = field.split(" ")[0];
             String name = field.split(" ")[1];
             String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
-            writer.println("\t\tpublic " + type + " get" + upperCaseName + "() { return _" + name + "; }");
+
+            if (type.startsWith("!"))
+            {
+                type = type.substring(1);
+                writer.println("\t\tpublic void set" + upperCaseName + "() { _" + name + " = true; }");
+                writer.println("\t\tpublic boolean " + name + "() { return _" + name + "; }");
+            }
+            else
+                writer.println("\t\tpublic " + type + " get" + upperCaseName + "() { return _" + name + "; }");
         }
 
         // class end
