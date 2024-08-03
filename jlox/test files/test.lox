@@ -1,12 +1,9 @@
-if (hello == 5)
-{
-	return 5;
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2); 
 }
 
-/* somthing
-that is
-is the somthing /
-* this
-*/
-
-fun name(path) {}
+var before = clock();
+print fib(40);
+var after = clock();
+print after - before;

@@ -20,7 +20,28 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c270664a-0a9e-4eb1-9c81-d12123a9e9ef" name="Changes" comment="" />
+    <list default="true" id="c270664a-0a9e-4eb1-9c81-d12123a9e9ef" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chunk.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chunk.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-8c0906c61d6f2c694c5e.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-58ee69fb616ac5ee4e1a.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2024-07-31T21-33-03-0517.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-clox-Debug-39b008c4940c903435b1.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jlox/out/production/jlox/me/shakedkod/lox/Resolver$ClassType.class" beforeDir="false" afterPath="$PROJECT_DIR$/../jlox/out/production/jlox/me/shakedkod/lox/Resolver$ClassType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jlox/out/production/jlox/me/shakedkod/lox/Resolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/../jlox/out/production/jlox/me/shakedkod/lox/Resolver.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jlox/test files/test.lox" beforeDir="false" afterPath="$PROJECT_DIR$/../jlox/test files/test.lox" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,6 +53,9 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../../../sdks/mingw64/x86_64-w64-mingw32/include/stdlib.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -54,6 +78,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "main",
@@ -62,7 +87,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Color Scheme Font",
+    "settings.editor.selected.configurable": "CppIncludesOrderOptionsId",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -86,7 +111,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1722461576336</updated>
-      <workItem from="1722461579169" duration="1261000" />
+      <workItem from="1722461579169" duration="6778000" />
     </task>
     <servers />
   </component>
@@ -97,5 +122,9 @@
     <isAutomaticCheckingOnLaunch value="false" />
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
