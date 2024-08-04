@@ -67,6 +67,36 @@ build CMakeFiles/clox.dir/memory.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev
   OBJECT_DIR = CMakeFiles\clox.dir
   OBJECT_FILE_DIR = CMakeFiles\clox.dir
 
+build CMakeFiles/clox.dir/debug.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/debug.c || cmake_object_order_depends_target_clox
+  DEP_FILE = CMakeFiles\clox.dir\debug.c.obj.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\clox.dir
+  OBJECT_FILE_DIR = CMakeFiles\clox.dir
+
+build CMakeFiles/clox.dir/value.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/value.c || cmake_object_order_depends_target_clox
+  DEP_FILE = CMakeFiles\clox.dir\value.c.obj.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\clox.dir
+  OBJECT_FILE_DIR = CMakeFiles\clox.dir
+
+build CMakeFiles/clox.dir/vm.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/vm.c || cmake_object_order_depends_target_clox
+  DEP_FILE = CMakeFiles\clox.dir\vm.c.obj.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\clox.dir
+  OBJECT_FILE_DIR = CMakeFiles\clox.dir
+
+build CMakeFiles/clox.dir/compiler.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/compiler.c || cmake_object_order_depends_target_clox
+  DEP_FILE = CMakeFiles\clox.dir\compiler.c.obj.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\clox.dir
+  OBJECT_FILE_DIR = CMakeFiles\clox.dir
+
+build CMakeFiles/clox.dir/scanner.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev/CompilersInterpreters/CraftingInterpretersBook/clox/scanner.c || cmake_object_order_depends_target_clox
+  DEP_FILE = CMakeFiles\clox.dir\scanner.c.obj.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\clox.dir
+  OBJECT_FILE_DIR = CMakeFiles\clox.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target clox
@@ -75,7 +105,7 @@ build CMakeFiles/clox.dir/memory.c.obj: C_COMPILER__clox_unscanned_Debug C$:/Dev
 #############################################
 # Link the executable clox.exe
 
-build clox.exe: C_EXECUTABLE_LINKER__clox_Debug CMakeFiles/clox.dir/main.c.obj CMakeFiles/clox.dir/chunk.c.obj CMakeFiles/clox.dir/memory.c.obj
+build clox.exe: C_EXECUTABLE_LINKER__clox_Debug CMakeFiles/clox.dir/main.c.obj CMakeFiles/clox.dir/chunk.c.obj CMakeFiles/clox.dir/memory.c.obj CMakeFiles/clox.dir/debug.c.obj CMakeFiles/clox.dir/value.c.obj CMakeFiles/clox.dir/vm.c.obj CMakeFiles/clox.dir/compiler.c.obj CMakeFiles/clox.dir/scanner.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\clox.dir
