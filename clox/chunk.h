@@ -12,6 +12,10 @@ typedef enum
 {
     // value
     OP_CONSTANT,
+    // literals
+    OP_NIL,
+    OP_TRUE,
+    OP_FALSE,
     // unary operation
     OP_NEGATE,
     // binary operation
