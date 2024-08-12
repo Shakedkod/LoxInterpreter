@@ -16,9 +16,14 @@ typedef enum
     OP_NIL,
     OP_TRUE,
     OP_FALSE,
-    // unary operation
+    // unary operators
     OP_NEGATE,
-    // binary operation
+    OP_NOT,
+    // equality operators
+    OP_EQUAL,
+    OP_GREATER,
+    OP_LESS,
+    // binary operators
     OP_ADD,
     OP_SUBTRACT,
     OP_MULTIPLY,
